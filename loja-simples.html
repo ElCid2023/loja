@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovidadeSP - Loja WhatsApp</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: rgba(255,255,255,0.95); color: #333; padding: 2rem; text-align: center; border-radius: 15px; margin-bottom: 2rem; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .product { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .product img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+        .product h3 { color: #333; margin-bottom: 10px; }
+        .product .price { font-size: 1.5rem; font-weight: bold; color: #25D366; margin: 10px 0; }
+        .product p { color: #666; margin-bottom: 15px; }
+        .links { display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; }
+        .link { padding: 8px 15px; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: bold; }
+        .shopee { background: #ee4d2d; color: white; }
+        .ml { background: #fff159; color: #333; }
+        .amazon { background: #ff9900; color: white; }
+        .whatsapp-btn { background: #25D366; color: white; padding: 12px 24px; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .whatsapp-btn:hover { background: #128C7E; }
+        .nav { display: flex; justify-content: center; gap: 20px; margin-bottom: 2rem; }
+        .nav a { background: rgba(255,255,255,0.9); color: #333; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; }
+        .nav a:hover { background: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tiktok-section { background: rgba(255,255,255,0.9); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .hashtag { background: #25D366; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; margin: 3px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ NovidadeSP</h1>
+            <p>Loja Virtual Integrada com WhatsApp Business</p>
+        </div>
+
+        <div class="nav">
+            <a href="#" onclick="showTab('produtos')">📱 Produtos</a>
+            <a href="#" onclick="showTab('afiliados')">💰 Afiliados</a>
+            <a href="#" onclick="showTab('tiktok')">🎵 TikTok</a>
+        </div>
+
+        <!-- ABA PRODUTOS -->
+        <div id="produtos" class="tab-content active">
+            <div class="product-grid" id="productGrid"></div>
+        </div>
+
+        <!-- ABA AFILIADOS -->
+        <div id="afiliados" class="tab-content">
+            <div class="tiktok-section">
+                <h2>💰 Hub de Afiliados</h2>
+                <p>Copie os links abaixo e ganhe comissão em cada venda!</p>
+            </div>
+            <div class="product-grid" id="affiliateGrid"></div>
+        </div>
+
+        <!-- ABA TIKTOK -->
+        <div id="tiktok" class="tab-content">
+            <div class="tiktok-section">
+                <h2>🎵 Sugestões para TikTok</h2>
+                <h3>📱 Smartphones:</h3>
+                <p><strong>Ideias:</strong> Unboxing, comparação, teste de câmera, dicas</p>
+                <div>
+                    <span class="hashtag">#smartphone</span>
+                    <span class="hashtag">#tecnologia</span>
+                    <span class="hashtag">#unboxing</span>
+                    <span class="hashtag">#review</span>
+                </div>
+                
+                <h3>💻 Notebooks:</h3>
+                <p><strong>Ideias:</strong> Setup, teste de jogos, produtividade</p>
+                <div>
+                    <span class="hashtag">#notebook</span>
+                    <span class="hashtag">#setup</span>
+                    <span class="hashtag">#produtividade</span>
+                    <span class="hashtag">#tech</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Produtos da loja
+        const produtos = [
+            {
+                nome: "iPhone 15 Pro Max",
+                preco: 9999.99,
+                imagem: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop",
+                descricao: "O mais avançado iPhone já criado",
+                shopee: "https://shopee.com.br/iphone-15-pro-max?affiliate_id=novidadesp",
+                ml: "https://produto.mercadolivre.com.br/iphone-15-pro-max?affiliate=novidadesp",
+                amazon: "https://amazon.com.br/iphone-15-pro-max?tag=novidadesp-20"
+            },
+            {
+                nome: "Samsung Galaxy S24 Ultra",
+                preco: 8999.99,
+                imagem: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=300&h=300&fit=crop",
+                descricao: "Galaxy mais poderoso da Samsung",
+                shopee: "https://shopee.com.br/galaxy-s24-ultra?affiliate_id=novidadesp",
+                ml: "https://produto.mercadolivre.com.br/galaxy-s24-ultra?affiliate=novidadesp",
+                amazon: "https://amazon.com.br/galaxy-s24-ultra?tag=novidadesp-20"
+            },
+            {
+                nome: "MacBook Air M3",
+                preco: 12999.99,
+                imagem: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=300&h=300&fit=crop",
+                descricao: "Notebook Apple com chip M3",
+                shopee: "https://shopee.com.br/macbook-air-m3?affiliate_id=novidadesp",
+                ml: "https://produto.mercadolivre.com.br/macbook-air-m3?affiliate=novidadesp",
+                amazon: "https://amazon.com.br/macbook-air-m3?tag=novidadesp-20"
+            }
+        ];
+
+        // Carregar produtos
+        function carregarProdutos() {
+            const grid = document.getElementById('productGrid');
+            const affiliateGrid = document.getElementById('affiliateGrid');
+            
+            produtos.forEach(produto => {
+                // Card para aba produtos
+                const card = `
+                    <div class="product">
+                        <img src="${produto.imagem}" alt="${produto.nome}">
+                        <h3>${produto.nome}</h3>
+                        <div class="price">R$ ${produto.preco.toFixed(2)}</div>
+                        <p>${produto.descricao}</p>
+                        <button class="whatsapp-btn" onclick="abrirWhatsApp('${produto.nome}', ${produto.preco}, '${produto.shopee}', '${produto.ml}', '${produto.amazon}')">
+                            💬 Comprar via WhatsApp
+                        </button>
+                    </div>
+                `;
+                
+                // Card para aba afiliados
+                const affiliateCard = `
+                    <div class="product">
+                        <h3>${produto.nome}</h3>
+                        <div class="price">R$ ${produto.preco.toFixed(2)}</div>
+                        <div class="links">
+                            <a href="${produto.shopee}" target="_blank" class="link shopee">🟡 Shopee</a>
+                            <a href="${produto.ml}" target="_blank" class="link ml">🔵 ML</a>
+                            <a href="${produto.amazon}" target="_blank" class="link amazon">🟠 Amazon</a>
+                        </div>
+                        <button class="whatsapp-btn" onclick="copiarLink('${produto.shopee}')">
+                            📋 Copiar Link Shopee
+                        </button>
+                    </div>
+                `;
+                
+                grid.innerHTML += card;
+                affiliateGrid.innerHTML += affiliateCard;
+            });
+        }
+
+        // Abrir WhatsApp
+        function abrirWhatsApp(nome, preco, shopee, ml, amazon) {
+            const mensagem = `🛍️ *${nome}*
+
+💰 *Preço: R$ ${preco.toFixed(2)}*
+
+📱 *Onde comprar:*
+🟡 Shopee: ${shopee}
+🔵 Mercado Livre: ${ml}
+🟠 Amazon: ${amazon}
+
+📞 *Dúvidas? Chama no WhatsApp!*`;
+            
+            const url = `https://wa.me/5511914405349?text=${encodeURIComponent(mensagem)}`;
+            window.open(url, '_blank');
+        }
+
+        // Copiar link
+        function copiarLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                alert('📋 Link copiado!');
+            });
+        }
+
+        // Mostrar aba
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+        }
+
+        // Carregar ao iniciar
+        carregarProdutos();
+    </script>
+</body>
+</html>
