@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Simples - Loja</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { background: #25D366; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; }
+        .btn { background: #25D366; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
+        .btn:hover { background: #128C7E; }
+        .btn-danger { background: #dc3545; }
+        .product-item { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #25D366; }
+        .code-area { background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Admin Simples</h1>
+            <p>Gerencie sua loja de forma fácil</p>
+        </div>
+
+        <!-- CONFIGURAÇÕES -->
+        <div class="card">
+            <h2>⚙️ Configurações</h2>
+            <div class="form-group">
+                <label>Nome da Loja:</label>
+                <input type="text" id="storeName" value="NovidadeSP">
+            </div>
+            <div class="form-group">
+                <label>WhatsApp (com código do país):</label>
+                <input type="text" id="whatsapp" value="5511914405349">
+            </div>
+            <button class="btn" onclick="saveConfig()">💾 Salvar</button>
+        </div>
+
+        <!-- PRODUTOS -->
+        <div class="card">
+            <h2>📦 Produtos</h2>
+            <div id="productsList"></div>
+            <button class="btn" onclick="addProduct()">➕ Adicionar Produto</button>
+        </div>
+
+        <!-- FORMULÁRIO PRODUTO -->
+        <div class="card" id="productForm" style="display: none;">
+            <h3 id="formTitle">➕ Novo Produto</h3>
+            <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" id="productName">
+            </div>
+            <div class="form-group">
+                <label>Preço:</label>
+                <input type="number" id="productPrice" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Imagem (URL):</label>
+                <input type="url" id="productImage">
+            </div>
+            <div class="form-group">
+                <label>Descrição:</label>
+                <textarea id="productDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Link Shopee:</label>
+                <input type="url" id="linkShopee">
+            </div>
+            <div class="form-group">
+                <label>Link Mercado Livre:</label>
+                <input type="url" id="linkML">
+            </div>
+            <div class="form-group">
+                <label>Link Amazon:</label>
+                <input type="url" id="linkAmazon">
+            </div>
+            <button class="btn" onclick="saveProduct()">💾 Salvar Produto</button>
+            <button class="btn btn-danger" onclick="cancelProduct()">❌ Cancelar</button>
+        </div>
+
+        <!-- GERAR CÓDIGO -->
+        <div class="card">
+            <h2>📤 Gerar Código da Loja</h2>
+            <button class="btn" onclick="generateCode()">🔧 Gerar Código</button>
+            <button class="btn" onclick="copyCode()" id="copyBtn" style="display: none;">📋 Copiar</button>
+            <div id="codeOutput" class="code-area" style="margin-top: 15px; display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let products = [
+            {
+                nome: "iPhone 15 Pro Max",
+                preco: 9999.99,
+                imagem: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop",
+                descricao: "O mais avançado iPhone já criado",
+                shopee: "https://shopee.com.br/iphone-15-pro-max?affiliate_id=novidadesp",
+                ml: "https://produto.mercadolivre.com.br/iphone-15-pro-max?affiliate=novidadesp",
+                amazon: "https://amazon.com.br/iphone-15-pro-max?tag=novidadesp-20"
+            }
+        ];
+        let editingIndex = -1;
+
+        function loadProducts() {
+            const container = document.getElementById('productsList');
+            container.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <h4>${product.nome}</h4>
+                    <p>R$ ${product.preco.toFixed(2)}</p>
+                    <p>${product.descricao}</p>
+                    <button class="btn" onclick="editProduct(${index})">✏️ Editar</button>
+                    <button class="btn btn-danger" onclick="deleteProduct(${index})">🗑️ Excluir</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function addProduct() {
+            document.getElementById('productForm').style.display = 'block';
+            document.getElementById('formTitle').textContent = '➕ Novo Produto';
+            clearForm();
+            editingIndex = -1;
+        }
+
+        function editProduct(index) {
+            const product = products[index];
+            document.getElementById('productForm').style.display = 'block';
+            document.getElementById('formTitle').textContent = '✏️ Editar Produto';
+            
+            document.getElementById('productName').value = product.nome;
+            document.getElementById('productPrice').value = product.preco;
+            document.getElementById('productImage').value = product.imagem;
+            document.getElementById('productDescription').value = product.descricao;
+            document.getElementById('linkShopee').value = product.shopee;
+            document.getElementById('linkML').value = product.ml;
+            document.getElementById('linkAmazon').value = product.amazon;
+            
+            editingIndex = index;
+        }
+
+        function saveProduct() {
+            const product = {
+                nome: document.getElementById('productName').value,
+                preco: parseFloat(document.getElementById('productPrice').value),
+                imagem: document.getElementById('productImage').value,
+                descricao: document.getElementById('productDescription').value,
+                shopee: document.getElementById('linkShopee').value,
+                ml: document.getElementById('linkML').value,
+                amazon: document.getElementById('linkAmazon').value
+            };
+
+            if (editingIndex >= 0) {
+                products[editingIndex] = product;
+            } else {
+                products.push(product);
+            }
+
+            loadProducts();
+            cancelProduct();
+            alert('✅ Produto salvo!');
+        }
+
+        function deleteProduct(index) {
+            if (confirm('Excluir este produto?')) {
+                products.splice(index, 1);
+                loadProducts();
+                alert('✅ Produto excluído!');
+            }
+        }
+
+        function cancelProduct() {
+            document.getElementById('productForm').style.display = 'none';
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productImage').value = '';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('linkShopee').value = '';
+            document.getElementById('linkML').value = '';
+            document.getElementById('linkAmazon').value = '';
+        }
+
+        function saveConfig() {
+            alert('✅ Configurações salvas!');
+        }
+
+        function generateCode() {
+            const storeName = document.getElementById('storeName').value;
+            const whatsapp = document.getElementById('whatsapp').value;
+            
+            const code = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${storeName} - Loja WhatsApp</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: rgba(255,255,255,0.95); color: #333; padding: 2rem; text-align: center; border-radius: 15px; margin-bottom: 2rem; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .product { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .product img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+        .product h3 { color: #333; margin-bottom: 10px; }
+        .product .price { font-size: 1.5rem; font-weight: bold; color: #25D366; margin: 10px 0; }
+        .product p { color: #666; margin-bottom: 15px; }
+        .whatsapp-btn { background: #25D366; color: white; padding: 12px 24px; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .whatsapp-btn:hover { background: #128C7E; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ ${storeName}</h1>
+            <p>Loja Virtual Integrada com WhatsApp Business</p>
+        </div>
+
+        <div class="product-grid">
+${products.map(produto => `            <div class="product">
+                ${produto.imagem ? `<img src="${produto.imagem}" alt="${produto.nome}">` : ''}
+                <h3>${produto.nome}</h3>
+                <div class="price">R$ ${produto.preco.toFixed(2)}</div>
+                <p>${produto.descricao}</p>
+                <button class="whatsapp-btn" onclick="abrirWhatsApp('${produto.nome}', ${produto.preco}, '${produto.shopee}', '${produto.ml}', '${produto.amazon}')">
+                    💬 Comprar via WhatsApp
+                </button>
+            </div>`).join('\n')}
+        </div>
+    </div>
+
+    <script>
+        function abrirWhatsApp(nome, preco, shopee, ml, amazon) {
+            const mensagem = \`🛍️ *\${nome}*
+
+💰 *Preço: R$ \${preco.toFixed(2)}*
+
+📱 *Onde comprar:*
+🟡 Shopee: \${shopee}
+🔵 Mercado Livre: \${ml}
+🟠 Amazon: \${amazon}
+
+📞 *Dúvidas? Chama no WhatsApp!*\`;
+            
+            const url = \`https://wa.me/${whatsapp}?text=\${encodeURIComponent(mensagem)}\`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>`;
+
+            document.getElementById('codeOutput').textContent = code;
+            document.getElementById('codeOutput').style.display = 'block';
+            document.getElementById('copyBtn').style.display = 'inline-block';
+        }
+
+        function copyCode() {
+            const code = document.getElementById('codeOutput').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('📋 Código copiado! Cole no GitHub.');
+            });
+        }
+
+        // Carregar produtos ao iniciar
+        loadProducts();
+    </script>
+</body>
+</html>
